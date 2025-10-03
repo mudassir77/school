@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Task Planner - Organize Your Homework</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Poppins:wght@400;500;700&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-paper: #F9F9F7;
+            --bg-card: #FFFFFF;
+            --border: #E0E0E0;
+            --text-dark: #424242; /* Graphite */
+            --text-muted: #757575;
+            --accent-yellow: #FFF59D;
+            --accent-pink: #FFAB91;
+            --accent-blue: #81D4FA;
+            --accent-green: #A5D6A7;
+            --danger: #EF5350; /* Red Pen */
+            --shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-paper);
+            background-image: repeating-linear-gradient(
+                to bottom,
+                transparent,
+                transparent 24px,
+                #E8F3F8 25px
+            );
+            background-size: 100% 25px;
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+        .main { padding: 4rem 0; }
+        
+        .hero { text-align: center; margin-bottom: 4rem; }
+        .hero h1 {
+            font-family: 'Patrick Hand', cursive;
+            font-size: clamp(3.5rem, 8vw, 5.5rem);
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 550px; margin: 0 auto; }
+        
+        .form-container {
+            background: var(--bg-card);
+            padding: 2.5rem 3rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow-deep);
+            border: 1px solid var(--border);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .form-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 50%, var(--accent-purple) 100%);
+        }
+        
+        /* Study Stats Panel */
+        .study-stats {
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+        }
+        
+        .study-stats-panel {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-deep);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .study-stats-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 33%, var(--accent-purple) 66%, var(--accent-gold) 100%);
+        }
+        
+        .stats-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .stats-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text-light);
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+        
+        .stats-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .study-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        
+        .study-icon {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border-radius: 20px;
+            position: relative;
+            box-shadow: var(--glow-green);
+            animation: study-pulse 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .study-icon::before {
+            content: '📚';
+            font-size: 2.5rem;
+            animation: float 2s ease-in-out infinite;
+        }
+        
+        .study-icon::after {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            right: -15px;
+            bottom: -15px;
+            border: 2px solid var(--accent-purple);
+            border-radius: 25px;
+            opacity: 0.4;
+            animation: study-scan 4s linear infinite;
+        }
+        
+        @keyframes study-pulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.05) rotate(3deg); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        @keyframes study-scan {
+            0% { transform: rotate(0deg); opacity: 0.4; }
+            50% { opacity: 0.8; }
+            100% { transform: rotate(360deg); opacity: 0.4; }
+        }
+        
+        .study-metrics {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .metric-box {
+            background: rgba(0, 230, 118, 0.1);
+            border: 1px solid rgba(0, 230, 118, 0.3);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .metric-box:nth-child(2) {
+            background: rgba(3, 218, 198, 0.1);
+            border-color: rgba(3, 218, 198, 0.3);
+        }
+        
+        .metric-box:nth-child(3) {
+            background: rgba(187, 134, 252, 0.1);
+            border-color: rgba(187, 134, 252, 0.3);
+        }
+        
+        .metric-box:nth-child(4) {
+            background: rgba(255, 193, 7, 0.1);
+            border-color: rgba(255, 193, 7, 0.3);
+        }
+        
+        .metric-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            font-family: 'Space Mono', monospace;
+        }
+        
+        .metric-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-light);
+            text-shadow: 0 0 10px rgba(0, 230, 118, 0.3);
+        }
+        
+        .section-header { margin-bottom: 2.5rem; display: flex; align-items: center; gap: 1rem; }
+        .section-icon { font-size: 2.5rem; }
+        .section-title { font-family: 'Patrick Hand', cursive; font-size: 2.75rem; }
+        
+        .form-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; }
+        .form-group { margin-bottom: 0.5rem; }
+        .form-label { display: block; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-dark); }
+        .form-control {
+            width: 100%; padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px; font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            background-color: #FDFDFD;
+            transition: all 0.2s ease-in-out;
+        }
+        .form-control:focus {
+            outline: none; border-color: var(--accent-blue);
+            box-shadow: 0 0 0 4px rgba(129, 212, 250, 0.4);
+        }
+        
+        .btn {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-family: 'Patrick Hand', cursive;
+            font-size: 1.25rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:active { transform: translateY(0) scale(0.98); }
+        
+        .btn-submit {
+            background-color: var(--accent-green);
+            color: var(--text-dark);
+            width: 100%;
+            padding: 14px;
+            font-size: 1.5rem;
+        }
+        
+        /* Task Card Styling */
+        .task-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 2rem; }
+        .task-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--shadow);
+            transition: transform 0.3s, box-shadow 0.3s;
+            display: flex;
+            flex-direction: column;
+        }
+        .task-card:hover { transform: translateY(-8px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .card-header { padding: 1.5rem; flex-grow: 1; }
+        .card-subject {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            padding: 6px 14px;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+        .card-title { font-family: 'Patrick Hand', cursive; font-size: 2rem; line-height: 1.2; margin-bottom: 1rem; }
+        .card-notes { font-size: 0.95rem; color: var(--text-muted); }
+        .card-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .due-date {
+            font-weight: 700;
+            color: var(--danger);
+            border: 2px solid var(--danger);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+        }
+        .btn-done {
+            background-color: transparent;
+            font-size: 1.5rem;
+            padding: 8px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        /* Modal */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s; }
+        .modal.active { opacity: 1; visibility: visible; }
+        .modal-content { background: white; padding: 2rem; border-radius: 16px; box-shadow: var(--shadow); max-width: 450px; width: 90%; text-align: center; }
+        .modal-title { font-family: 'Patrick Hand', cursive; font-size: 2rem; margin-bottom: 1rem; }
+        .modal-actions { display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; }
+        .btn-cancel { background-color: #f1f1f1; color: var(--text-dark); }
+        .btn-confirm { background-color: var(--accent-green); color: var(--text-dark); }
+        
+        /* Subject-specific colors */
+        .subject-math { background-color: var(--accent-blue); color: #01579B; }
+        .subject-science { background-color: var(--accent-green); color: #1B5E20; }
+        .subject-history { background-color: var(--accent-yellow); color: #E65100; }
+        .subject-english { background-color: var(--accent-pink); color: #BF360C; }
+        .subject-art { background-color: #CE93D8; color: #4A148C; }
+        .subject-other { background-color: #B0BEC5; color: #263238; }
+
+    </style>
+</head>
+<body>
+    <main class="main">
+        <div class="container">
+            <section class="hero">
+                <h1>Student Task Planner</h1>
+                <p>Stay on top of your schoolwork! Add your assignments, projects, and study sessions here to keep everything organized.</p>
+            </section>
+
+            <div class="form-container" id="create-form">
+                <div class="section-header">
+                    
+                    <h2 class="section-title">Add a New Task</h2>
+                </div>
+                <form id="task-form">
+                    <div class="form-layout">
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="task-name">Task / Assignment Name *</label>
+                            <input type="text" id="task-name" class="form-control" placeholder="e.g., Chapter 5 Reading Quiz" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-subject">Subject</label>
+                            <select id="task-subject" class="form-control">
+                                <option>Math</option>
+                                <option>Science</option>
+                                <option>History</option>
+                                <option>English</option>
+                                <option>Art</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="task-due-date">Due Date</label>
+                            <input type="date" id="task-due-date" class="form-control">
+                        </div>
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label for="task-notes">Notes / Requirements</label>
+                            <textarea id="task-notes" class="form-control" rows="3" placeholder="e.g., Answer questions 1-10 on page 54."></textarea>
+                        </div>
+                    </div>
+                    <div style="margin-top: 2.5rem;">
+                        <button type="submit" class="btn btn-submit">Add to List!</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="task-collection">
+                 <div class="section-header">
+                    
+                    <h2 class="section-title">My Homework Board</h2>
+                </div>
+                <div id="tasks-container" class="task-grid"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-title" class="modal-title">All Done?</h3>
+            <p id="modal-message" style="color: var(--text-muted);">This will remove the task from your list. Great job!</p>
+            <div class="modal-actions">
+                <button class="btn btn-cancel" onclick="closeModal()">Not Yet</button>
+                <button class="btn btn-confirm" onclick="confirmAction()">Yep, Done!</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAction = null, currentTaskId = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const today = new Date();
+            document.getElementById('task-due-date').value = today.toISOString().split('T')[0];
+        });
+        
+        class TaskManager {
+            constructor() { this.tasks = this.loadTasks(); this.renderTasks(); }
+            loadTasks() { try { const t = localStorage.getItem('student-tasks'); return t ? JSON.parse(t) : []; } catch(err) { return []; } }
+            saveTasks() { localStorage.setItem('student-tasks', JSON.stringify(this.tasks)); }
+            addTask(task) { task.id = Date.now().toString(); this.tasks.unshift(task); this.saveTasks(); this.renderTasks(); }
+            deleteTask(id) { this.tasks = this.tasks.filter(t => t.id !== id); this.saveTasks(); this.renderTasks(); }
+            renderTasks() {
+                const container = document.getElementById('tasks-container');
+                if (this.tasks.length === 0) {
+                    container.innerHTML = `<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted); padding: 2rem; background: var(--bg-card); border-radius: 12px; border: 1px dashed var(--border);">All clear! No homework to do. 🎉</p>`;
+                    return;
+                }
+                container.innerHTML = this.tasks.map((t, index) => {
+                    const dueDate = t.dueDate ? new Date(t.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' }) : 'No Date';
+                    const subjectClass = `subject-${t.subject.toLowerCase().replace(/\s+/g, '')}`;
+                    // Apply a slight rotation for the "sticky note" effect
+                    const rotation = (index % 5) - 2; // -2, -1, 0, 1, 2 degrees
+                    
+                    return `
+                    <div class="task-card" style="transform: rotate(${rotation}deg);">
+                        <div class="card-header">
+                            <span class="card-subject ${subjectClass}">${t.subject}</span>
+                            <h3 class="card-title">${t.name}</h3>
+                            ${t.notes ? `<p class="card-notes">${t.notes}</p>` : ''}
+                        </div>
+                        <div class="card-footer">
+                            <span class="due-date">DUE: ${dueDate}</span>
+                            <button class="btn-done" title="Mark as Done" onclick="confirmDelete('${t.id}', '${t.name.replace(/'/g, "\\'")}')">✅</button>
+                        </div>
+                    </div>
+                `}).join('');
+            }
+        }
+        const taskManager = new TaskManager();
+
+        document.getElementById('task-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const task = {
+                name: document.getElementById('task-name').value.trim(),
+                subject: document.getElementById('task-subject').value,
+                dueDate: document.getElementById('task-due-date').value,
+                notes: document.getElementById('task-notes').value.trim(),
+            };
+            taskManager.addTask(task);
+            this.reset();
+            const today = new Date();
+            document.getElementById('task-due-date').value = today.toISOString().split('T')[0];
+            document.getElementById('task-collection').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        function showModal(title, msg, onConfirm) {
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = msg;
+            currentAction = onConfirm;
+            document.getElementById('modal').classList.add('active');
+        }
+        function closeModal() { document.getElementById('modal').classList.remove('active'); currentAction = null; currentTaskId = null; }
+        function confirmAction() { if (currentAction) currentAction(); closeModal(); }
+        function confirmDelete(id, name) { currentTaskId = id; showModal(`Mark "${name}" as done?`, `This will remove the task from your list. Great job!`, () => taskManager.deleteTask(currentTaskId)); }
+        
+        document.getElementById('modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+    </script>
+</body>
+</html>
